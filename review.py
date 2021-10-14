@@ -15,7 +15,21 @@ What have we been up to? In May of this year, we closed our Series E, giving us 
 
 We are hiring across all roles, including security, SRE, engineering, and more.
 
-Interested? Email me at elise.mance (at) clio.com"""
+Interested? Email me at elise.mance (at) clio.com
+
+x
+x
+x
+x
+x
+x
+x
+x
+x
+x
+x
+x
+"""
 
 
 def define_themes():
@@ -25,7 +39,6 @@ def define_themes():
             dpg.add_theme_color(dpg.mvThemeCol_ButtonActive, (255, 34, 0))
             dpg.add_theme_color(dpg.mvThemeCol_ButtonHovered, (210, 34, 0))
             dpg.add_theme_style(dpg.mvStyleVar_FrameRounding, 35)
-            dpg.add_theme_style(dpg.mvStyleVar_FramePadding, 20, 20)    
 
     with dpg.theme(tag="theme__maybe_button"):
         with dpg.theme_component(dpg.mvButton):
@@ -33,7 +46,6 @@ def define_themes():
             dpg.add_theme_color(dpg.mvThemeCol_ButtonActive, (17, 194, 17))
             dpg.add_theme_color(dpg.mvThemeCol_ButtonHovered, (17, 244, 17))
             dpg.add_theme_style(dpg.mvStyleVar_FrameRounding, 35)
-            dpg.add_theme_style(dpg.mvStyleVar_FramePadding, 20, 20)  
 
 
 def register_fonts():
@@ -54,53 +66,59 @@ def rejected_callback(sender, app_data):
 
 
 def main(args) -> int:
+    ### dearpygui initialization
     dpg.create_context()
-    dpg.create_viewport(width=1280, height=720, resizable=False)
+    dpg.create_viewport(width=1024, height=768, resizable=False)
     dpg.setup_dearpygui()
 
+
+    ### our initialization
     define_themes()
     register_fonts()
 
+
+    ### actually draw stuff
     with dpg.window(
         label="Example Window", 
         no_title_bar=True, 
-        width=1280, 
-        height=720,
+        width=1010, 
+        height=768,
     ):
         # ID & LINK
-        with dpg.group(horizontal=True, pos=[50, 50]):
-            dpg.add_input_text(default_value="comment ID", readonly=True, width=95)
-            dpg.add_input_text(default_value="HN link to particular comment here", readonly=True, width=600)
+        with dpg.child_window(label="window__header", autosize_x=True, height=40):
+            with dpg.group(horizontal=True):
+                dpg.add_input_text(default_value="28857595", readonly=True, width=95)
+                dpg.add_input_text(default_value="https://news.ycombinator.com/item?id=28857595", readonly=True, width=600)
         
         # COMMENT TEXT
-        #dpg.add_input_text(multiline=True, width=800, height=300, pos=[50, 75], default_value=SAMPLE_COMMENT)
-        dpg.add_text(tag="comment_text", wrap=750, pos=[50,75], default_value=SAMPLE_COMMENT)
+        with dpg.child_window(label="window__comment", autosize_x=True, height=460):
+            #dpg.add_input_text(multiline=True, width=800, height=300, pos=[50, 75], default_value=SAMPLE_COMMENT)
+            dpg.add_text(tag="comment_text", wrap=750, default_value=SAMPLE_COMMENT)
+            dpg.bind_item_font(dpg.last_item(), "font__Verdana18")
 
         # ARROWS
-        dpg.add_button(label="up", arrow=True, direction=dpg.mvDir_Up, pos=[15,120])
-        dpg.add_button(label="down", arrow=True, direction=dpg.mvDir_Down, pos=[15,160])
+        #dpg.add_button(label="up", arrow=True, direction=dpg.mvDir_Up, pos=[15,120])
+        #dpg.add_button(label="down", arrow=True, direction=dpg.mvDir_Down, pos=[15,160])
 
-        # BUTTONS
-        dpg.add_button(label="REJECTED", callback=rejected_callback, width=100, height=50, pos=[150,400])
-        dpg.bind_item_theme(dpg.last_item(), "theme__rejected_button")
-        #dpg.bind_item_font(dpg.last_item(), "font__Tahoma14")
+        # BUTTONS & NOTES
+        with dpg.child_window(label="window__actions", autosize_x=True, autosize_y=True):
+            # buttons
+            with dpg.group(horizontal=True, horizontal_spacing=64):
+                dpg.add_spacer()
 
-        dpg.add_button(label="...maybe", width=100, height=50, pos=[350, 400])
-        dpg.bind_item_theme(dpg.last_item(), "theme__maybe_button")
+                dpg.add_button(label="REJECTED", callback=rejected_callback, width=100, height=50)
+                dpg.bind_item_theme(dpg.last_item(), "theme__rejected_button")
 
-        # NOTES
-        dpg.add_input_text(multiline=True, label="notes", width=400, height=100, pos=[100, 475])
+                dpg.add_button(label="...maybe", width=100, height=50)
+                dpg.bind_item_theme(dpg.last_item(), "theme__maybe_button")
 
+            dpg.add_spacer(height=20)
 
-        # just some riffing to see where these positions end up...
-        #dpg.add_button(label="0", arrow=True, direction=dpg.mvDir_Down, pos=[0,0])
-        #dpg.add_button(label="20", arrow=True, direction=dpg.mvDir_Down, pos=[20,20])
-        #dpg.add_button(label="40", arrow=True, direction=dpg.mvDir_Down, pos=[40,40])
-        #dpg.add_button(label="60", arrow=True, direction=dpg.mvDir_Down, pos=[60,60])
-        #dpg.add_button(label="80", arrow=True, direction=dpg.mvDir_Down, pos=[80,80])
+            # notes
+            dpg.add_input_text(multiline=True, label="notes", width=400, height=100)
 
         
-
+    ### dearpygui startup & shutdown
     dpg.show_viewport()
     dpg.start_dearpygui()
     dpg.destroy_context()
