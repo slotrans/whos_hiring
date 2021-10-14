@@ -45,7 +45,7 @@ def register_fonts():
 
         #dpg.add_font("verdanab.ttf", 14, tag="font__VerdanaBold14")
 
-    dpg.bind_font("font__Verdana14") # sets the default
+    dpg.bind_font("font__Verdana16") # sets the default
 
 
 def main(args) -> int:
@@ -62,15 +62,20 @@ def main(args) -> int:
         width=1280, 
         height=720,
     ):
+        # ID & LINK
         with dpg.group(horizontal=True, pos=[50, 50]):
             dpg.add_input_text(default_value="comment ID", readonly=True, width=95)
             dpg.add_input_text(default_value="HN link to particular comment here", readonly=True, width=600)
         
-        dpg.add_input_text(multiline=True, width=800, height=300, pos=[50, 75], default_value=SAMPLE_COMMENT)
+        # COMMENT TEXT
+        #dpg.add_input_text(multiline=True, width=800, height=300, pos=[50, 75], default_value=SAMPLE_COMMENT)
+        dpg.add_text(wrap=750, pos=[50,75], default_value=SAMPLE_COMMENT)
 
-        dpg.add_button(label="up", arrow=True, direction=dpg.mvDir_Up, pos=[860,90])
-        dpg.add_button(label="down", arrow=True, direction=dpg.mvDir_Down, pos=[860,120])
+        # ARROWS
+        dpg.add_button(label="up", arrow=True, direction=dpg.mvDir_Up, pos=[15,120])
+        dpg.add_button(label="down", arrow=True, direction=dpg.mvDir_Down, pos=[15,160])
 
+        # BUTTONS
         dpg.add_button(label="REJECTED", width=100, height=50, pos=[150,400])
         dpg.bind_item_theme(dpg.last_item(), "theme__rejected_button")
         #dpg.bind_item_font(dpg.last_item(), "font__Tahoma14")
@@ -78,6 +83,7 @@ def main(args) -> int:
         dpg.add_button(label="...maybe", width=100, height=50, pos=[350, 400])
         dpg.bind_item_theme(dpg.last_item(), "theme__maybe_button")
 
+        # NOTES
         dpg.add_input_text(multiline=True, label="notes", width=400, height=100, pos=[100, 475])
 
 
