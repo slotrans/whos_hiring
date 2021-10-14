@@ -64,9 +64,32 @@ def register_fonts():
     dpg.bind_font("font__Verdana16") # sets the default
 
 
-def rejected_callback(sender, app_data):
-    #print(f"rejected_callback({sender}, {app_data})", file=sys.stderr)
-    dpg.set_value("comment_text", "hello from the callback")
+def rejected_callback(sender, app_data, user_data):
+    notes = dpg.get_value("input__notes")
+    dpg.set_value("text__comment_text", f"REJECTED! (not yet implemented)\nnotes={notes}")
+
+
+def maybe_callback(sender, app_data, user_data):
+    notes = dpg.get_value("input__notes")
+    dpg.set_value("text__comment_text", f"...maybe! (not yet implemented)\nnotes={notes}")
+
+
+def up_arrow_callback(sender, app_data, user_data):
+    cdb = user_data
+    cdb.prev()
+
+    dpg.set_value("text__comment_id", cdb.comment_id)
+    dpg.set_value("text__url", cdb.url)
+    dpg.set_value("text__comment_text", cdb.comment_text)
+
+
+def down_arrow_callback(sender, app_data, user_data):
+    cdb = user_data
+    cdb.next()
+
+    dpg.set_value("text__comment_id", cdb.comment_id)
+    dpg.set_value("text__url", cdb.url)
+    dpg.set_value("text__comment_text", cdb.comment_text)
 
 
 def main(args) -> int:
@@ -102,8 +125,8 @@ def main(args) -> int:
         # ID & LINK
         with dpg.child_window(label="window__header", autosize_x=True, height=40):
             with dpg.group(horizontal=True):
-                dpg.add_input_text(default_value=cdb.comment_id, readonly=True, width=95)
-                dpg.add_input_text(default_value=cdb.url, readonly=True, width=600)
+                dpg.add_input_text(tag="text__comment_id", default_value=cdb.comment_id, readonly=True, width=95)
+                dpg.add_input_text(tag="text__url", default_value=cdb.url, readonly=True, width=600)
         
 
         # COMMENT TEXT & ARROWS
@@ -111,13 +134,13 @@ def main(args) -> int:
             # arrows
             with dpg.child_window(label="window__arrows", width=40, height=460):
                 dpg.add_spacer(height=20)
-                dpg.add_button(label="up", arrow=True, direction=dpg.mvDir_Up)
+                dpg.add_button(label="up", arrow=True, direction=dpg.mvDir_Up, callback=up_arrow_callback, user_data=cdb)
                 dpg.add_spacer(height=20)
-                dpg.add_button(label="down", arrow=True, direction=dpg.mvDir_Down)
+                dpg.add_button(label="down", arrow=True, direction=dpg.mvDir_Down, callback=down_arrow_callback, user_data=cdb)
 
             # comment text
             with dpg.child_window(label="window__comment", autosize_x=True, height=460):
-                dpg.add_text(tag="comment_text", wrap=750, default_value=cdb.comment_text)
+                dpg.add_text(tag="text__comment_text", wrap=750, default_value=cdb.comment_text)
                 dpg.bind_item_font(dpg.last_item(), "font__Verdana18")
 
 
@@ -127,16 +150,16 @@ def main(args) -> int:
             with dpg.group(horizontal=True, horizontal_spacing=64):
                 dpg.add_spacer()
 
-                dpg.add_button(label="REJECTED", callback=rejected_callback, width=100, height=50)
+                dpg.add_button(tag="button__rejected", label="REJECTED", callback=rejected_callback, user_data=cdb, width=100, height=50)
                 dpg.bind_item_theme(dpg.last_item(), "theme__rejected_button")
 
-                dpg.add_button(label="...maybe", width=100, height=50)
+                dpg.add_button(tag="button__maybe", label="...maybe", callback=maybe_callback, user_data=cdb, width=100, height=50)
                 dpg.bind_item_theme(dpg.last_item(), "theme__maybe_button")
 
             dpg.add_spacer(height=20)
 
             # notes
-            dpg.add_input_text(multiline=True, label="notes", width=400, height=100)
+            dpg.add_input_text(tag="input__notes", multiline=True, label="notes", width=400, height=100)
 
         
     ### dearpygui startup & shutdown
