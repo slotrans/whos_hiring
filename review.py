@@ -1,8 +1,12 @@
 import sys
 import argparse
-import sqlite3
+#import sqlite3
+import pathlib
+import json
 
 import dearpygui.dearpygui as dpg
+
+import commentdb
 
 
 SAMPLE_COMMENT="""Clio | www.clio.com/about/careers/
@@ -66,6 +70,17 @@ def rejected_callback(sender, app_data):
 
 
 def main(args) -> int:
+    ### load data
+    infile_path = pathlib.Path(args.json_file)
+    input_data = [
+        json.loads(x) 
+        for x in 
+        infile_path.open(mode="rt", encoding="utf-8").readlines() 
+        if len(x) > 0
+    ]
+    cdb = commentdb.CommentDB(input_data)
+
+
     ### dearpygui initialization
     dpg.create_context()
     dpg.create_viewport(width=1024, height=768, resizable=False)
@@ -87,10 +102,10 @@ def main(args) -> int:
         # ID & LINK
         with dpg.child_window(label="window__header", autosize_x=True, height=40):
             with dpg.group(horizontal=True):
-                dpg.add_input_text(default_value="28857595", readonly=True, width=95)
-                dpg.add_input_text(default_value="https://news.ycombinator.com/item?id=28857595", readonly=True, width=600)
+                dpg.add_input_text(default_value=cdb.comment_id, readonly=True, width=95)
+                dpg.add_input_text(default_value=cdb.url, readonly=True, width=600)
         
-        
+
         # COMMENT TEXT & ARROWS
         with dpg.group(horizontal=True):
             # arrows
@@ -102,7 +117,7 @@ def main(args) -> int:
 
             # comment text
             with dpg.child_window(label="window__comment", autosize_x=True, height=460):
-                dpg.add_text(tag="comment_text", wrap=750, default_value=SAMPLE_COMMENT)
+                dpg.add_text(tag="comment_text", wrap=750, default_value=cdb.comment_text)
                 dpg.bind_item_font(dpg.last_item(), "font__Verdana18")
 
 
@@ -134,7 +149,8 @@ def main(args) -> int:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Hacker News \"Who's Hiring\" review tool")
-    parser.add_argument("--db-file", required=True, help="SQLite database file to work with")
+    #parser.add_argument("--db-file", required=True, help="SQLite database file to work with")
+    parser.add_argument("--json-file", required=True, help="line-delimited JSON file of input data")
     args = parser.parse_args()
 
     sys.exit(main(args))
