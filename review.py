@@ -48,6 +48,11 @@ def register_fonts():
     dpg.bind_font("font__Verdana16") # sets the default
 
 
+def rejected_callback(sender, app_data):
+    #print(f"rejected_callback({sender}, {app_data})", file=sys.stderr)
+    dpg.set_value("comment_text", "hello from the callback")
+
+
 def main(args) -> int:
     dpg.create_context()
     dpg.create_viewport(width=1280, height=720, resizable=False)
@@ -69,14 +74,14 @@ def main(args) -> int:
         
         # COMMENT TEXT
         #dpg.add_input_text(multiline=True, width=800, height=300, pos=[50, 75], default_value=SAMPLE_COMMENT)
-        dpg.add_text(wrap=750, pos=[50,75], default_value=SAMPLE_COMMENT)
+        dpg.add_text(tag="comment_text", wrap=750, pos=[50,75], default_value=SAMPLE_COMMENT)
 
         # ARROWS
         dpg.add_button(label="up", arrow=True, direction=dpg.mvDir_Up, pos=[15,120])
         dpg.add_button(label="down", arrow=True, direction=dpg.mvDir_Down, pos=[15,160])
 
         # BUTTONS
-        dpg.add_button(label="REJECTED", width=100, height=50, pos=[150,400])
+        dpg.add_button(label="REJECTED", callback=rejected_callback, width=100, height=50, pos=[150,400])
         dpg.bind_item_theme(dpg.last_item(), "theme__rejected_button")
         #dpg.bind_item_font(dpg.last_item(), "font__Tahoma14")
 
