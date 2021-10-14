@@ -90,15 +90,21 @@ def main(args) -> int:
                 dpg.add_input_text(default_value="28857595", readonly=True, width=95)
                 dpg.add_input_text(default_value="https://news.ycombinator.com/item?id=28857595", readonly=True, width=600)
         
-        # COMMENT TEXT
-        with dpg.child_window(label="window__comment", autosize_x=True, height=460):
-            #dpg.add_input_text(multiline=True, width=800, height=300, pos=[50, 75], default_value=SAMPLE_COMMENT)
-            dpg.add_text(tag="comment_text", wrap=750, default_value=SAMPLE_COMMENT)
-            dpg.bind_item_font(dpg.last_item(), "font__Verdana18")
+        
+        # COMMENT TEXT & ARROWS
+        with dpg.group(horizontal=True):
+            # arrows
+            with dpg.child_window(label="window__arrows", width=40, height=460):
+                dpg.add_spacer(height=20)
+                dpg.add_button(label="up", arrow=True, direction=dpg.mvDir_Up)
+                dpg.add_spacer(height=20)
+                dpg.add_button(label="down", arrow=True, direction=dpg.mvDir_Down)
 
-        # ARROWS
-        #dpg.add_button(label="up", arrow=True, direction=dpg.mvDir_Up, pos=[15,120])
-        #dpg.add_button(label="down", arrow=True, direction=dpg.mvDir_Down, pos=[15,160])
+            # comment text
+            with dpg.child_window(label="window__comment", autosize_x=True, height=460):
+                dpg.add_text(tag="comment_text", wrap=750, default_value=SAMPLE_COMMENT)
+                dpg.bind_item_font(dpg.last_item(), "font__Verdana18")
+
 
         # BUTTONS & NOTES
         with dpg.child_window(label="window__actions", autosize_x=True, autosize_y=True):
