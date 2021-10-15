@@ -26,8 +26,21 @@ class CommentDB:
         return self.data[self.cursor]["body"]
 
     @property
+    def status(self):
+        return self.data[self.cursor].get("status", None)
+
+    @property
+    def modified_unixtime(self):
+        return self.data[self.cursor].get("modified_unixtime", None)
+
+    @property
+    def notes(self):
+        return self.data[self.cursor].get("notes", None)
+
+    @property
     def as_json_record(self):
         return json.dumps(self.data[self.cursor])
+
 
     def next(self):
         if self.cursor+1 > len(self.data):
@@ -36,6 +49,7 @@ class CommentDB:
         self.cursor += 1
         return True
 
+
     def prev(self):
         if self.cursor-1 < 0:
             return False
@@ -43,11 +57,13 @@ class CommentDB:
         self.cursor -= 1
         return True
 
+
     def reject(self, notes):
         self.data[self.cursor]["status"] = REJECTED
         if notes:
             self.data[self.cursor]["notes"] = notes
         self.data[self.cursor]["modified_unixtime"] = int(time.time())
+
 
     def maybe(self, notes):
         self.data[self.cursor]["status"] = MAYBE
