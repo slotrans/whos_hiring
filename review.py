@@ -9,33 +9,6 @@ import dearpygui.dearpygui as dpg
 import commentdb
 
 
-SAMPLE_COMMENT="""Clio | www.clio.com/about/careers/
-
-Location: Canada or California (we are a remote-first org but we also have offices in Vancouver, Calgary and Toronto for those who like seeing people face-to-face sometimes)
-
-We create low-barrier, affordable software for lawyers to manage and grow their law firms effectively so they can offer their services to those who need it the most. We also make it easier for their clients to collaborate with them to create a more inclusive legal system for all. Our mission is to \"transform the legal experience for all\".
-
-What have we been up to? In May of this year, we closed our Series E, giving us a valuation of $1.6B USD and marked us as the first legal practice management unicorn globally! We also just acquired a court document automation company, our 2nd acquisition this year.And recently we just passed the 700 employee mark.
-
-We are hiring across all roles, including security, SRE, engineering, and more.
-
-Interested? Email me at elise.mance (at) clio.com
-
-x
-x
-x
-x
-x
-x
-x
-x
-x
-x
-x
-x
-"""
-
-
 def define_themes():
     with dpg.theme(tag="theme__rejected_button"):
         with dpg.theme_component(dpg.mvButton):
