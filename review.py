@@ -37,32 +37,42 @@ def register_fonts():
     dpg.bind_font("font__Verdana16") # sets the default
 
 
+def refresh_ui_from_data(cdb):
+    dpg.set_value("text__comment_id", cdb.comment_id)
+    dpg.set_value("text__url", cdb.url)
+    dpg.set_value("text__comment_text", cdb.comment_text)    
+
+
 def rejected_callback(sender, app_data, user_data):
+    cdb = user_data
     notes = dpg.get_value("input__notes")
-    dpg.set_value("text__comment_text", f"REJECTED! (not yet implemented)\nnotes={notes}")
+    #dpg.set_value("text__comment_text", f"REJECTED! (not yet implemented)\nnotes={notes}")
+    cdb.reject(notes)
+    print(cdb.as_json_record, file=sys.stderr)
+    cdb.next()
+    refresh_ui_from_data(cdb)
 
 
 def maybe_callback(sender, app_data, user_data):
+    cdb = user_data
     notes = dpg.get_value("input__notes")
-    dpg.set_value("text__comment_text", f"...maybe! (not yet implemented)\nnotes={notes}")
+    #dpg.set_value("text__comment_text", f"...maybe! (not yet implemented)\nnotes={notes}")
+    cdb.maybe(notes)
+    print(cdb.as_json_record, file=sys.stderr)
+    cdb.next()
+    refresh_ui_from_data(cdb)
 
 
 def up_arrow_callback(sender, app_data, user_data):
     cdb = user_data
     cdb.prev()
-
-    dpg.set_value("text__comment_id", cdb.comment_id)
-    dpg.set_value("text__url", cdb.url)
-    dpg.set_value("text__comment_text", cdb.comment_text)
+    refresh_ui_from_data(cdb)
 
 
 def down_arrow_callback(sender, app_data, user_data):
     cdb = user_data
     cdb.next()
-
-    dpg.set_value("text__comment_id", cdb.comment_id)
-    dpg.set_value("text__url", cdb.url)
-    dpg.set_value("text__comment_text", cdb.comment_text)
+    refresh_ui_from_data(cdb)
 
 
 def main(args) -> int:

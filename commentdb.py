@@ -1,4 +1,5 @@
 import time
+import json
 
 
 REJECTED="REJECTED"
@@ -23,6 +24,10 @@ class CommentDB:
     @property
     def comment_text(self):
         return self.data[self.cursor]["body"]
+
+    @property
+    def as_json_record(self):
+        return json.dumps(self.data[self.cursor])
 
     def next(self):
         if self.cursor+1 > len(self.data):
