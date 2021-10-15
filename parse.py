@@ -15,7 +15,7 @@ def format_comment(commtext) -> str:
             out_parts.append(element.string)
         elif isinstance(element, Tag):
             if element.name == "a":
-                out_parts.append(element.text)
+                out_parts.append(element["href"])
             elif element.name == "p":
                 out_parts.append("\n\n")
                 out_parts.append(element.text)
