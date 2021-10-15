@@ -135,9 +135,11 @@ def main(args) -> int:
 
                 dpg.add_button(tag="button__rejected", label="REJECTED", callback=rejected_callback, user_data=cdb, width=100, height=50)
                 dpg.bind_item_theme(dpg.last_item(), "theme__rejected_button")
+                dpg.bind_item_font(dpg.last_item(), "font__Verdana20")
 
                 dpg.add_button(tag="button__maybe", label="...maybe", callback=maybe_callback, user_data=cdb, width=100, height=50)
                 dpg.bind_item_theme(dpg.last_item(), "theme__maybe_button")
+                dpg.bind_item_font(dpg.last_item(), "font__Verdana20")
 
             dpg.add_spacer(height=20)
 
