@@ -5,6 +5,28 @@ import json
 import functools
 
 from bs4 import BeautifulSoup
+from bs4.element import NavigableString, Tag
+
+
+def format_comment(commtext) -> str:
+    out_parts = []
+    for element in commtext.contents:
+        if isinstance(element, NavigableString):
+            out_parts.append(element.string)
+        elif isinstance(element, Tag):
+            if element.name == "a":
+                out_parts.append(element.text)
+            elif element.name == "p":
+                out_parts.append("\n\n")
+                out_parts.append(element.text)
+            elif element.name == "pre":
+                out_parts.append(element.text)
+            elif element.name == "div" and "reply" in element["class"]:
+                pass
+            else:
+                print(f"unexpected child tag '{element.name}': {element}", file=sys.stderr)
+
+    return "".join(out_parts)
 
 
 def main(args) -> int:
@@ -23,7 +45,7 @@ def main(args) -> int:
 
             print(f"parsing {infile.name}", file=sys.stderr)
             contents = infile.open(mode="rt", encoding="utf-8").read()
-            soup = BeautifulSoup(contents, "html.parser")
+            soup = BeautifulSoup(contents, "html5lib")
 
             for comtr in soup.find_all("tr", class_="comtr"):
                 td_ind = comtr.find("td", class_="ind")
@@ -33,12 +55,13 @@ def main(args) -> int:
 
                 commtext_span = comtr.find("span", class_="commtext")
                 if commtext_span is None:
-                    print(f"comment id {comment_id} has no text, skippping", file=sys.stderr)
+                    print(f"comment id {comment_id} has no text, skipping", file=sys.stderr)
                     continue
 
                 comment_id = int(comtr["id"])
-
-                out = {"comment_id":comment_id, "body":commtext_span.text}
+                body = format_comment(commtext_span)
+                
+                out = {"comment_id":comment_id, "body":body}
                 to_output(f"{json.dumps(out)}")
 
     finally:
