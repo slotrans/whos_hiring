@@ -26,17 +26,20 @@ def main(args) -> int:
             soup = BeautifulSoup(contents, "html.parser")
 
             for comtr in soup.find_all("tr", class_="comtr"):
-                comment_id = int(comtr["id"])
+                td_ind = comtr.find("td", class_="ind")
+                if td_ind["indent"] != "0": # replies have an indent > 0
+                    print(f"comment id {comment_id} is a reply, skipping", file=sys.stderr)
+                    continue
 
                 commtext_span = comtr.find("span", class_="commtext")
                 if commtext_span is None:
                     print(f"comment id {comment_id} has no text, skippping", file=sys.stderr)
-                else:
-                    #safe_body = commtext_span.text.replace("\t", " ") # unlikely, but be safe
-                    #safe_body = safe_body.replace("\n", " ") # annoying
-                    #print(f"{comment_id}\t{safe_body}")
-                    out = {"comment_id":comment_id, "body":commtext_span.text}
-                    to_output(f"{json.dumps(out)}")
+                    continue
+
+                comment_id = int(comtr["id"])
+
+                out = {"comment_id":comment_id, "body":commtext_span.text}
+                to_output(f"{json.dumps(out)}")
 
     finally:
         if args.output_file:
