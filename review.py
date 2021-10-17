@@ -9,7 +9,7 @@ import dearpygui.dearpygui as dpg
 import commentdb
 
 
-def define_themes():
+def define_themes() -> None:
     with dpg.theme(tag="theme__rejected_button"):
         with dpg.theme_component(dpg.mvButton):
             dpg.add_theme_color(dpg.mvThemeCol_Button, (167, 34, 0))
@@ -25,7 +25,7 @@ def define_themes():
             dpg.add_theme_style(dpg.mvStyleVar_FrameRounding, 35)
 
 
-def register_fonts():
+def register_fonts() -> None:
     with dpg.font_registry():
         dpg.add_font("verdana.ttf", 14, tag="font__Verdana14")
         dpg.add_font("verdana.ttf", 16, tag="font__Verdana16")
@@ -37,13 +37,13 @@ def register_fonts():
     dpg.bind_font("font__Verdana16") # sets the default
 
 
-def refresh_ui_from_data(cdb):
+def refresh_ui_from_data(cdb) -> None:
     dpg.set_value("text__comment_id", cdb.comment_id)
     dpg.set_value("text__url", cdb.url)
     dpg.set_value("text__comment_text", cdb.comment_text)    
 
 
-def rejected_callback(sender, app_data, user_data):
+def rejected_callback(sender, app_data, user_data) -> None:
     cdb = user_data
     notes = dpg.get_value("input__notes")
     #dpg.set_value("text__comment_text", f"REJECTED! (not yet implemented)\nnotes={notes}")
@@ -53,7 +53,7 @@ def rejected_callback(sender, app_data, user_data):
     refresh_ui_from_data(cdb)
 
 
-def maybe_callback(sender, app_data, user_data):
+def maybe_callback(sender, app_data, user_data) -> None:
     cdb = user_data
     notes = dpg.get_value("input__notes")
     #dpg.set_value("text__comment_text", f"...maybe! (not yet implemented)\nnotes={notes}")
@@ -63,44 +63,21 @@ def maybe_callback(sender, app_data, user_data):
     refresh_ui_from_data(cdb)
 
 
-def up_arrow_callback(sender, app_data, user_data):
+def up_arrow_callback(sender, app_data, user_data) -> None:
     cdb = user_data
     cdb.prev()
     refresh_ui_from_data(cdb)
 
 
-def down_arrow_callback(sender, app_data, user_data):
+def down_arrow_callback(sender, app_data, user_data) -> None:
     cdb = user_data
     cdb.next()
     refresh_ui_from_data(cdb)
 
 
-def main(args) -> int:
-    ### load data
-    infile_path = pathlib.Path(args.json_file)
-    input_data = [
-        json.loads(x) 
-        for x in 
-        infile_path.open(mode="rt", encoding="utf-8").readlines() 
-        if len(x) > 0
-    ]
-    cdb = commentdb.CommentDB(input_data)
-
-
-    ### dearpygui initialization
-    dpg.create_context()
-    dpg.create_viewport(width=1024, height=768, resizable=False)
-    dpg.setup_dearpygui()
-
-
-    ### our initialization
-    define_themes()
-    register_fonts()
-
-
-    ### actually draw stuff
+def draw_ui(cdb) -> None:
     with dpg.window(
-        label="Example Window", 
+        label="main window",
         no_title_bar=True, 
         width=1010, 
         height=768,
@@ -145,6 +122,33 @@ def main(args) -> int:
 
             # notes
             dpg.add_input_text(tag="input__notes", multiline=True, label="notes", width=400, height=100)
+
+
+def main(args) -> int:
+    ### load data
+    infile_path = pathlib.Path(args.json_file)
+    input_data = [
+        json.loads(x) 
+        for x in 
+        infile_path.open(mode="rt", encoding="utf-8").readlines() 
+        if len(x) > 0
+    ]
+    cdb = commentdb.CommentDB(input_data)
+
+
+    ### dearpygui initialization
+    dpg.create_context()
+    dpg.create_viewport(title="Who's Hiring?", width=1024, height=768, resizable=False)
+    dpg.setup_dearpygui()
+
+
+    ### our initialization
+    define_themes()
+    register_fonts()
+
+
+    ### actually draw stuff
+    draw_ui(cdb)
 
         
     ### dearpygui startup & shutdown
