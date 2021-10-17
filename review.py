@@ -4,12 +4,12 @@ import argparse
 import pathlib
 import json
 import webbrowser
-from typing import Optional
+from typing import Optional, Union
 
 import dearpygui.dearpygui as dpg
 import pendulum
 
-import commentdb
+from commentdb import CommentDB, FilterMode
 
 
 def iso_from_unix(unixtime: Optional[int]) -> str:
@@ -56,19 +56,23 @@ def register_fonts() -> None:
 
 def refresh_ui_from_data(cdb) -> None:
     dpg.set_value("text__comment_id", cdb.comment_id)
-    dpg.set_value("text__url", cdb.url)
-    dpg.set_value("text__comment_text", cdb.comment_text)  
+    #dpg.set_value("text__url", cdb.url)
+    dpg.set_value("text__comment_text", cdb.comment_text)
     dpg.set_value("input__notes", (cdb.notes or ""))
     dpg.set_value("text__status", (cdb.status or ""))
     dpg.set_value("text__modified", iso_from_unix(cdb.modified_unixtime))
+
+    # buttons don't support updating their text so it has to be replaced
+    url_button_parent = dpg.get_item_parent("button__url")
+    dpg.delete_item("button__url")
+    draw_url_button(url_button_parent, cdb.url)
 
 
 def rejected_callback(sender, app_data, user_data) -> None:
     cdb = user_data
     notes = dpg.get_value("input__notes")
-    #dpg.set_value("text__comment_text", f"REJECTED! (not yet implemented)\nnotes={notes}")
     cdb.reject(notes)
-    print(cdb.as_json_record, file=sys.stderr)
+    #print(cdb.as_json_record, file=sys.stderr)
     cdb.next()
     refresh_ui_from_data(cdb)
 
@@ -76,9 +80,8 @@ def rejected_callback(sender, app_data, user_data) -> None:
 def maybe_callback(sender, app_data, user_data) -> None:
     cdb = user_data
     notes = dpg.get_value("input__notes")
-    #dpg.set_value("text__comment_text", f"...maybe! (not yet implemented)\nnotes={notes}")
     cdb.maybe(notes)
-    print(cdb.as_json_record, file=sys.stderr)
+    #print(cdb.as_json_record, file=sys.stderr)
     cdb.next()
     refresh_ui_from_data(cdb)
 
@@ -95,29 +98,56 @@ def down_arrow_callback(sender, app_data, user_data) -> None:
     refresh_ui_from_data(cdb)
 
 
+def first_arrow_callback(sender, app_data, user_data) -> None:
+    cdb = user_data
+    cdb.first()
+    refresh_ui_from_data(cdb)
+
+
+def last_arrow_callback(sender, app_data, user_data) -> None:
+    cdb = user_data
+    cdb.last()
+    refresh_ui_from_data(cdb)
+
+
+def filter_mode_callback(sender, app_data, user_data) -> None:
+    #print(f"filter_mode_callback({sender}, {app_data}, {user_data})", file=sys.stderr)
+    cdb = user_data
+    cdb.filter_mode = FilterMode(app_data)
+
+
+def draw_url_button(parent_item: Union[int, str], url: str) -> None:
+    dpg.add_button(tag="button__url", parent=parent_item, label=url, width=600, callback=lambda:webbrowser.open(url))
+    dpg.bind_item_theme(dpg.last_item(), "theme__hyperlink")
+
+
 def draw_ui(cdb) -> None:
     with dpg.window(
         label="main window",
-        no_title_bar=True, 
-        width=1010, 
+        no_title_bar=True,
+        width=1010,
         height=768,
     ):
         # ID & LINK
         with dpg.child_window(label="window__header", autosize_x=True, height=40):
-            with dpg.group(horizontal=True):
+            with dpg.group(horizontal=True) as g:
                 dpg.add_input_text(tag="text__comment_id", default_value=cdb.comment_id, readonly=True, width=95)
-                dpg.add_button(tag="text__url", label=cdb.url, width=600, callback=lambda:webbrowser.open(cdb.url))
-                dpg.bind_item_theme(dpg.last_item(), "theme__hyperlink")
-        
+                #dpg.add_button(tag="button__url", label=cdb.url, width=600, callback=lambda:webbrowser.open(cdb.url))
+                #dpg.bind_item_theme(dpg.last_item(), "theme__hyperlink")
+                draw_url_button(g, cdb.url)
+
 
         # COMMENT TEXT & ARROWS
         with dpg.group(horizontal=True):
             # arrows
             with dpg.child_window(label="window__arrows", width=40, height=460):
+                dpg.add_button(label="F", callback=first_arrow_callback, user_data=cdb, width=22, height=22)
                 dpg.add_spacer(height=20)
                 dpg.add_button(label="up", arrow=True, direction=dpg.mvDir_Up, callback=up_arrow_callback, user_data=cdb)
                 dpg.add_spacer(height=20)
                 dpg.add_button(label="down", arrow=True, direction=dpg.mvDir_Down, callback=down_arrow_callback, user_data=cdb)
+                dpg.add_spacer(height=20)
+                dpg.add_button(label="L", callback=last_arrow_callback, user_data=cdb, width=22, height=22)
 
             # comment text
             with dpg.child_window(label="window__comment", autosize_x=True, height=460):
@@ -151,17 +181,20 @@ def draw_ui(cdb) -> None:
                     dpg.add_text(tag="text__status", default_value=(cdb.status or ""))
                     dpg.add_text(tag="text__modified", default_value=iso_from_unix(cdb.modified_unixtime))
 
+                filter_items=(FilterMode.ALL.value, FilterMode.ALL_UNSTATUSED.value, FilterMode.MAYBE_ONLY.value, FilterMode.REJECTED_ONLY.value)
+                dpg.add_combo(items=filter_items, label="filter", default_value="All", callback=filter_mode_callback, user_data=cdb, width=150)
+
 
 def main(args) -> int:
     ### load data
     infile_path = pathlib.Path(args.json_file)
     input_data = [
-        json.loads(x) 
-        for x in 
-        infile_path.open(mode="rt", encoding="utf-8").readlines() 
+        json.loads(x)
+        for x in
+        infile_path.open(mode="rt", encoding="utf-8").readlines()
         if len(x) > 0
     ]
-    cdb = commentdb.CommentDB(input_data)
+    cdb = CommentDB(input_data)
 
 
     ### dearpygui initialization
@@ -178,7 +211,7 @@ def main(args) -> int:
     ### actually draw stuff
     draw_ui(cdb)
 
-        
+
     ### dearpygui startup & shutdown
     dpg.show_viewport()
     dpg.start_dearpygui()
