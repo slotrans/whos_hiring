@@ -1,6 +1,5 @@
 import sys
 import argparse
-#import sqlite3
 import pathlib
 import json
 import webbrowser
@@ -9,7 +8,7 @@ from typing import Optional, Union
 import dearpygui.dearpygui as dpg
 import pendulum
 
-from commentdb import CommentDB, FilterMode
+from commentdb import CommentDB, SqliteCommentDB, FilterMode
 
 
 def iso_from_unix(unixtime: Optional[int]) -> str:
@@ -183,9 +182,15 @@ def draw_ui(cdb) -> None:
 
 def main(args) -> int:
     ### load data
-    infile_path = pathlib.Path(args.json_file)
-    with infile_path.open(mode="rt", encoding="utf-8") as f:
-        cdb = CommentDB.from_open_file(f)
+    #infile_path = pathlib.Path(args.json_file)
+    #with infile_path.open(mode="rt", encoding="utf-8") as f:
+    #    cdb = CommentDB.from_json_file(f)
+    if args.json_file:
+        infile_path = pathlib.Path(args.json_file)
+        with infile_path.open(mode="rt", encoding="utf-8") as f:
+            cdb = SqliteCommentDB.import_json_file(f, args.db_file)
+    else:
+        cdb = SqliteCommentDB.from_db_file(args.db_file)
 
 
     ### dearpygui initialization
@@ -213,8 +218,8 @@ def main(args) -> int:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Hacker News \"Who's Hiring\" review tool")
-    #parser.add_argument("--db-file", required=True, help="SQLite database file to work with")
-    parser.add_argument("--json-file", required=True, help="line-delimited JSON file of input data")
+    parser.add_argument("--db-file", required=True, help="SQLite database file to work with")
+    parser.add_argument("--json-file", required=False, help="line-delimited JSON file of input data")
     args = parser.parse_args()
 
     sys.exit(main(args))
