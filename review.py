@@ -122,12 +122,7 @@ def draw_url_button(parent_item: Union[int, str], url: str) -> None:
 
 
 def draw_ui(cdb) -> None:
-    with dpg.window(
-        label="main window",
-        no_title_bar=True,
-        width=1010,
-        height=768,
-    ):
+    with dpg.window(tag="window__main", no_title_bar=True):
         # ID & LINK
         with dpg.child_window(label="window__header", autosize_x=True, height=40):
             with dpg.group(horizontal=True) as g:
@@ -183,6 +178,8 @@ def draw_ui(cdb) -> None:
 
                 filter_items=(FilterMode.ALL.value, FilterMode.ALL_UNSTATUSED.value, FilterMode.MAYBE_ONLY.value, FilterMode.REJECTED_ONLY.value)
                 dpg.add_combo(items=filter_items, label="filter", default_value="All", callback=filter_mode_callback, user_data=cdb, width=150)
+
+    dpg.set_primary_window("window__main", True)
 
 
 def main(args) -> int:
