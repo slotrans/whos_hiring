@@ -3,10 +3,20 @@ import argparse
 #import sqlite3
 import pathlib
 import json
+import webbrowser
+from typing import Optional
 
 import dearpygui.dearpygui as dpg
+import pendulum
 
 import commentdb
+
+
+def iso_from_unix(unixtime: Optional[int]) -> str:
+    if unixtime is None:
+        return ""
+    else:
+        return pendulum.from_timestamp(unixtime).in_tz("America/Denver").isoformat()
 
 
 def define_themes() -> None:
@@ -24,6 +34,13 @@ def define_themes() -> None:
             dpg.add_theme_color(dpg.mvThemeCol_ButtonHovered, (17, 244, 17))
             dpg.add_theme_style(dpg.mvStyleVar_FrameRounding, 35)
 
+    with dpg.theme(tag="theme__hyperlink"): # lifted from demo.py
+        with dpg.theme_component(dpg.mvButton):
+            dpg.add_theme_color(dpg.mvThemeCol_Button, [0, 0, 0, 0])
+            dpg.add_theme_color(dpg.mvThemeCol_ButtonActive, [0, 0, 0, 0])
+            dpg.add_theme_color(dpg.mvThemeCol_ButtonHovered, [29, 151, 236, 25])
+            dpg.add_theme_color(dpg.mvThemeCol_Text, [29, 151, 236])
+
 
 def register_fonts() -> None:
     with dpg.font_registry():
@@ -40,7 +57,10 @@ def register_fonts() -> None:
 def refresh_ui_from_data(cdb) -> None:
     dpg.set_value("text__comment_id", cdb.comment_id)
     dpg.set_value("text__url", cdb.url)
-    dpg.set_value("text__comment_text", cdb.comment_text)    
+    dpg.set_value("text__comment_text", cdb.comment_text)  
+    dpg.set_value("input__notes", (cdb.notes or ""))
+    dpg.set_value("text__status", (cdb.status or ""))
+    dpg.set_value("text__modified", iso_from_unix(cdb.modified_unixtime))
 
 
 def rejected_callback(sender, app_data, user_data) -> None:
@@ -86,7 +106,8 @@ def draw_ui(cdb) -> None:
         with dpg.child_window(label="window__header", autosize_x=True, height=40):
             with dpg.group(horizontal=True):
                 dpg.add_input_text(tag="text__comment_id", default_value=cdb.comment_id, readonly=True, width=95)
-                dpg.add_input_text(tag="text__url", default_value=cdb.url, readonly=True, width=600)
+                dpg.add_button(tag="text__url", label=cdb.url, width=600, callback=lambda:webbrowser.open(cdb.url))
+                dpg.bind_item_theme(dpg.last_item(), "theme__hyperlink")
         
 
         # COMMENT TEXT & ARROWS
@@ -121,7 +142,14 @@ def draw_ui(cdb) -> None:
             dpg.add_spacer(height=20)
 
             # notes
-            dpg.add_input_text(tag="input__notes", multiline=True, label="notes", width=400, height=100)
+            with dpg.group(horizontal=True):
+                dpg.add_input_text(tag="input__notes", multiline=True, label="notes", width=400, height=100)
+
+                dpg.add_spacer(width=30)
+
+                with dpg.child_window(width=200, height=100):
+                    dpg.add_text(tag="text__status", default_value=(cdb.status or ""))
+                    dpg.add_text(tag="text__modified", default_value=iso_from_unix(cdb.modified_unixtime))
 
 
 def main(args) -> int:
