@@ -88,30 +88,29 @@ def maybe_callback(sender, app_data, user_data) -> None:
 
 def up_arrow_callback(sender, app_data, user_data) -> None:
     cdb = user_data
-    cdb.prev()
-    refresh_ui_from_data(cdb)
+    if cdb.prev():
+        refresh_ui_from_data(cdb)
 
 
 def down_arrow_callback(sender, app_data, user_data) -> None:
     cdb = user_data
-    cdb.next()
-    refresh_ui_from_data(cdb)
+    if cdb.next():
+        refresh_ui_from_data(cdb)
 
 
 def first_arrow_callback(sender, app_data, user_data) -> None:
     cdb = user_data
-    cdb.first()
-    refresh_ui_from_data(cdb)
+    if cdb.first():
+        refresh_ui_from_data(cdb)
 
 
 def last_arrow_callback(sender, app_data, user_data) -> None:
     cdb = user_data
-    cdb.last()
-    refresh_ui_from_data(cdb)
+    if cdb.last():
+        refresh_ui_from_data(cdb)
 
 
 def filter_mode_callback(sender, app_data, user_data) -> None:
-    #print(f"filter_mode_callback({sender}, {app_data}, {user_data})", file=sys.stderr)
     cdb = user_data
     cdb.filter_mode = FilterMode(app_data)
 
@@ -185,13 +184,8 @@ def draw_ui(cdb) -> None:
 def main(args) -> int:
     ### load data
     infile_path = pathlib.Path(args.json_file)
-    input_data = [
-        json.loads(x)
-        for x in
-        infile_path.open(mode="rt", encoding="utf-8").readlines()
-        if len(x) > 0
-    ]
-    cdb = CommentDB(input_data)
+    with infile_path.open(mode="rt", encoding="utf-8") as f:
+        cdb = CommentDB.from_open_file(f)
 
 
     ### dearpygui initialization
