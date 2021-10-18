@@ -28,7 +28,8 @@ to play with `dearpygui`.
 (Quick caveat: I made this entirely for myself, it definitely works on my machine, so these instructions are a bit half-assed...)
 
 This project uses Poetry, and includes an appropriate `pyproject.toml`. The declared Python version is 3.9
-because that's what I used, but 3.7+ ought to work.
+because that's what I used, but 3.7+ ought to work. You will need the SQLite .dll/.so, which is not _always_
+included with Python.
 
 First, get scraped
 
