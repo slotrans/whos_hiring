@@ -25,9 +25,14 @@ to play with `dearpygui`.
 
 ## Usage
 
+(Quick caveat: I made this entirely for myself, it definitely works on my machine, so these instructions are a bit half-assed...)
+
+This project uses Poetry, and includes an appropriate `pyproject.toml`. The declared Python version is 3.9
+because that's what I used, but 3.7+ ought to work.
+
 First, get scraped
 
-`python scrape.py --url https://news.ycombinator.com/item?id=28719320 --output-dir foo`
+`python scrape.py --url "https://news.ycombinator.com/item?id=28719320" --output-dir foo`
 
 Then extract the data
 
