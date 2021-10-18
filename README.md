@@ -26,16 +26,20 @@ to play with `dearpygui`.
 ## Usage
 
 First, get scraped
+
 `python scrape.py --url https://news.ycombinator.com/item?id=28719320 --output-dir foo`
 
 Then extract the data
+
 `python parse.py --input-dir foo --output-file bar.json`
 
 Now get clickin'
+
 `python review.py --json-file bar.json --db-file whatever.db`
 
 Your progress is saved automatically, exit any time. When resuming later, the JSON
 file is no longer necessary.
+
 `python review.py --db-file whatever.db`
 
 The db file is a SQLite database with a single table and can be manipulated with
