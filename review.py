@@ -22,23 +22,23 @@ def define_themes() -> None:
     with dpg.theme(tag="theme__rejected_button"):
         with dpg.theme_component(dpg.mvButton):
             dpg.add_theme_color(dpg.mvThemeCol_Button, (167, 34, 0))
-            dpg.add_theme_color(dpg.mvThemeCol_ButtonActive, (255, 34, 0))
             dpg.add_theme_color(dpg.mvThemeCol_ButtonHovered, (210, 34, 0))
+            dpg.add_theme_color(dpg.mvThemeCol_ButtonActive, (255, 34, 0))
             dpg.add_theme_style(dpg.mvStyleVar_FrameRounding, 35)
 
     with dpg.theme(tag="theme__maybe_button"):
         with dpg.theme_component(dpg.mvButton):
             dpg.add_theme_color(dpg.mvThemeCol_Button, (17, 154, 17))
-            dpg.add_theme_color(dpg.mvThemeCol_ButtonActive, (17, 194, 17))
             dpg.add_theme_color(dpg.mvThemeCol_ButtonHovered, (17, 244, 17))
+            dpg.add_theme_color(dpg.mvThemeCol_ButtonActive, (17, 194, 17))
             dpg.add_theme_style(dpg.mvStyleVar_FrameRounding, 35)
 
-    with dpg.theme(tag="theme__hyperlink"): # lifted from demo.py
+    with dpg.theme(tag="theme__hyperlink"): # lifted from demo.py, tweaked a bit
         with dpg.theme_component(dpg.mvButton):
-            dpg.add_theme_color(dpg.mvThemeCol_Button, [0, 0, 0, 0])
-            dpg.add_theme_color(dpg.mvThemeCol_ButtonActive, [0, 0, 0, 0])
-            dpg.add_theme_color(dpg.mvThemeCol_ButtonHovered, [29, 151, 236, 25])
-            dpg.add_theme_color(dpg.mvThemeCol_Text, [29, 151, 236])
+            dpg.add_theme_color(dpg.mvThemeCol_Button, (0, 0, 0, 0))
+            dpg.add_theme_color(dpg.mvThemeCol_ButtonHovered, (29, 151, 236, 25))
+            dpg.add_theme_color(dpg.mvThemeCol_ButtonActive, (29, 151, 236, 75))
+            dpg.add_theme_color(dpg.mvThemeCol_Text, (29, 151, 236))
 
 
 def register_fonts() -> None:
