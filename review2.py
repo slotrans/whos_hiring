@@ -1,5 +1,6 @@
 import sys
 import webbrowser
+from contextlib import contextmanager
 
 import glfw
 import OpenGL.GL as gl
@@ -21,6 +22,24 @@ https://grafana.com/about/careers/
 
 If you cannot see something on that page that you identify as... apply to the nearest role and describe what you are looking for in your cover letter as we do read them all.
 """
+
+
+@contextmanager
+def ctx_begin_group():
+    try:
+        imgui.begin_group()
+        yield
+    finally:
+        imgui.end_group()
+
+
+@contextmanager
+def ctx_begin_child(label, width=0, height=0, border=False, flags=0):
+    try:
+        visible = imgui.begin_child(label, width, height, border, flags)
+        yield visible
+    finally:
+        imgui.end_child()
 
 
 def impl_glwf_init() -> None:
@@ -58,8 +77,7 @@ def draw_ui(default_font) -> None:
     imgui.push_font(default_font)
 
     ## ID & LINK
-    imgui.begin_child(label="window__header", width=0, height=40, border=True)
-    if True:
+    with ctx_begin_child(label="window__header", width=0, height=40, border=True):
         imgui.push_item_width(95)
         imgui.input_text(label="", value="28719321", buffer_length=16, flags=imgui.INPUT_TEXT_READ_ONLY)
         imgui.pop_item_width()
@@ -73,14 +91,11 @@ def draw_ui(default_font) -> None:
         if imgui.button(label="https://news.ycombinator.com/item?id=28719321", width=600, height=0):
             webbrowser.open("https://news.ycombinator.com/item?id=28719321")
         imgui.pop_style_color(4)
-    imgui.end_child()
 
 
     ## COMMENT TEXT & ARROWS
-    imgui.begin_group()
-    if True:
-        imgui.begin_child(label="window__arrows", width=40, height=460, border=True)
-        if True:
+    with ctx_begin_group():
+        with ctx_begin_child(label="window__arrows", width=40, height=460, border=True):
             if imgui.button(label="F", width=22, height=22):
                 print("F clicked")
             imgui.dummy(0, 20)
@@ -92,24 +107,17 @@ def draw_ui(default_font) -> None:
             imgui.dummy(0, 20)
             if imgui.button(label="L", width=22, height=22):
                 print("L clicked")
-        imgui.end_child()
 
         imgui.same_line()
 
-        imgui.begin_child(label="window__comment", width=0, height=460, border=True)
-        if True:
+        with ctx_begin_child(label="window__comment", width=0, height=460, border=True):
             imgui.text_wrapped(SAMPLE_COMMENT)
-        imgui.end_child()
-    imgui.end_group()
 
 
     ## BUTTONS
-    imgui.begin_child(label="window__actions", width=0, height=0, border=True)
-    if True:
-
+    with ctx_begin_child(label="window__actions", width=0, height=0, border=True):
         ### buttons
-        imgui.begin_group()
-        if True:
+        with ctx_begin_group():
             imgui.dummy(64, 0)
             imgui.same_line()
             imgui.push_style_color(imgui.COLOR_BUTTON, r=167/255, g=34/255, b=0/255)
@@ -131,28 +139,22 @@ def draw_ui(default_font) -> None:
                 print("MAYBE clicked")
             imgui.pop_style_var()
             imgui.pop_style_color(3)
-        imgui.end_group()
 
         imgui.dummy(0, 20)
 
         ### notes & filter mode
-        imgui.begin_group()
-        if True:
+        with ctx_begin_group():
             changed, notes_input = imgui.input_text_multiline(label="notes", value="", buffer_length=64*1024, width=400, height=100)
             imgui.same_line()
             imgui.dummy(30, 0)
             imgui.same_line()
-            imgui.begin_child(label="window__info", width=200, height=100, border=True)
-            if True:
+            with ctx_begin_child(label="window__info", width=200, height=100, border=True):
                 imgui.text("status here")
                 imgui.text("modified here")
-            imgui.end_child()
             imgui.same_line()
             imgui.push_item_width(150)
             changed, filter_selection = imgui.combo(label="filter", current=0, items=["all", "all un-statused", "rejected only", "maybe only"])
             imgui.pop_item_width()
-        imgui.end_group()
-    imgui.end_child()
 
     imgui.pop_font()
 
