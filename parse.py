@@ -19,7 +19,7 @@ def format_comment(commtext) -> str:
             elif element.name == "p":
                 out_parts.append("\n\n")
                 out_parts.append(element.text)
-            elif element.name == "pre":
+            elif element.name in ("pre", "i", "b", "u"):
                 out_parts.append(element.text)
             elif element.name == "div" and "reply" in element["class"]:
                 pass
@@ -60,7 +60,7 @@ def main(args) -> int:
 
                 comment_id = int(comtr["id"])
                 body = format_comment(commtext_span)
-                
+
                 out = {"comment_id":comment_id, "body":body}
                 to_output(f"{json.dumps(out)}")
 
